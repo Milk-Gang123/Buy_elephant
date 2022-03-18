@@ -14,7 +14,7 @@ import json
 from werkzeug.utils import redirect
 
 app = Flask(__name__)
-
+WAS = 0
 # Устанавливаем уровень логирования
 logging.basicConfig(level=logging.INFO)
 
@@ -31,6 +31,7 @@ sessionStorage = {}
 # Функция получает тело запроса и возвращает ответ.
 # Внутри функции доступен request.json - это JSON, который отправила нам Алиса в запросе POST
 def main():
+    global WAS
     logging.info('Request: %r', request.json)
 
     # Начинаем формировать ответ, согласно документации
@@ -45,7 +46,10 @@ def main():
 
     # Отправляем request.json и response в функцию handle_dialog. Она сформирует оставшиеся поля JSON, которые отвечают
     # непосредственно за ведение диалога
-    handle_dialog(request.json, response)
+    if WAS == 0:
+        handle_dialog(request.json, response)
+    if WAS != 0:
+        handle_dialog_rabbit(request.json, response)
 
     logging.info('Response: %r', request.json)
 
@@ -54,6 +58,7 @@ def main():
 
 
 def handle_dialog_rabbit(req, res):
+    global WAS
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -100,6 +105,7 @@ def handle_dialog_rabbit(req, res):
 
 
 def handle_dialog(req, res):
+    global WAS
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -136,7 +142,8 @@ def handle_dialog(req, res):
         # Пользователь согласился, прощаемся.
         res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True
-        return main()
+        WAS = 1
+        return redirect('/post')
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = 'Все говорят "%s", а ты купи слона!' % (
