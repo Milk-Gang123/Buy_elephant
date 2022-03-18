@@ -11,6 +11,8 @@ import json
 # мы передаем __name__, в нем содержится информация, в каком модуле мы находимся.
 # В данном случае там содержится '__main__', так как мы обращаемся к переменной из запущенного модуля.
 # если бы такое обращение, например, произошло внутри модуля logging, то мы бы получили 'logging'
+from werkzeug.utils import redirect
+
 app = Flask(__name__)
 
 # Устанавливаем уровень логирования
@@ -135,7 +137,7 @@ def handle_dialog(req, res):
         res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True
         res['response']['end_session'] = False
-        return handle_dialog_rabbit(req, res)
+        return redirect('/post')
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = 'Все говорят "%s", а ты купи слона!' % (
