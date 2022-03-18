@@ -11,13 +11,11 @@ import json
 # мы передаем __name__, в нем содержится информация, в каком модуле мы находимся.
 # В данном случае там содержится '__main__', так как мы обращаемся к переменной из запущенного модуля.
 # если бы такое обращение, например, произошло внутри модуля logging, то мы бы получили 'logging'
-from werkzeug.utils import redirect
-
 app = Flask(__name__)
-WAS = -1
+
 # Устанавливаем уровень логирования
 logging.basicConfig(level=logging.INFO)
-
+animal = 'Слона'
 # Создадим словарь, чтобы для каждой сессии общения с навыком хранились подсказки, которые видел пользователь.
 # Это поможет нам немного разнообразить подсказки ответов (buttons в JSON ответа).
 # Когда новый пользователь напишет нашему навыку, то мы сохраним в этот словарь запись формата
@@ -31,8 +29,8 @@ sessionStorage = {}
 # Функция получает тело запроса и возвращает ответ.
 # Внутри функции доступен request.json - это JSON, который отправила нам Алиса в запросе POST
 def main():
-    global WAS
     logging.info('Request: %r', request.json)
+
     # Начинаем формировать ответ, согласно документации
     # мы собираем словарь, который потом при помощи библиотеки json преобразуем в JSON и отдадим Алисе
     response = {
@@ -45,10 +43,7 @@ def main():
 
     # Отправляем request.json и response в функцию handle_dialog. Она сформирует оставшиеся поля JSON, которые отвечают
     # непосредственно за ведение диалога
-    if WAS == 0:
-        handle_dialog(request.json, response)
-    if WAS != 0:
-        handle_dialog_rabbit(request.json, response)
+    handle_dialog(request.json, response)
 
     logging.info('Response: %r', request.json)
 
@@ -56,54 +51,8 @@ def main():
     return json.dumps(response)
 
 
-def handle_dialog_rabbit(req, res):
-    user_id = req['session']['user_id']
-
-    if req['session']['new']:
-        # Это новый пользователь.
-        # Инициализируем сессию и поприветствуем его.
-        # Запишем подсказки, которые мы ему покажем в первый раз
-
-        sessionStorage[user_id] = {
-            'suggests': [
-                "Не хочу.",
-                "Не буду.",
-                "Отстань!",
-            ]
-        }
-        # Заполняем текст ответа
-        res['response']['text'] = 'Привет! Купи Кролика!'
-        # Получим подсказки
-        res['response']['buttons'] = get_suggests(user_id)
-        return
-    # a
-    # Сюда дойдем только, если пользователь не новый, и разговор с Алисой уже был начат
-    # Обрабатываем ответ пользователя.
-    # В req['request']['original_utterance'] лежит весь текст, что нам прислал пользователь
-    # Если он написал 'ладно', 'куплю', 'покупаю', 'хорошо', то мы считаем, что пользователь не согласился.
-    # Подумайте, все ли в этом фрагменте написано "красиво"?\
-    if req['request']['original_utterance'].lower() in [
-        'ладно',
-        'куплю',
-        'покупаю',
-        'хорошо',
-        'я покупаю',
-        'я куплю'
-    ]:
-        # Пользователь согласился, прощаемся.
-        res['response']['text'] = 'Кролика можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True
-        return
-
-    # Если нет, то убеждаем его купить слона!
-    res['response']['text'] = 'Все говорят "%s", а ты купи кролика!' % (
-        req['request']['original_utterance']
-    )
-    res['response']['buttons'] = get_suggests(user_id)
-
-
 def handle_dialog(req, res):
-    global WAS
+    global animal
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -119,10 +68,9 @@ def handle_dialog(req, res):
             ]
         }
         # Заполняем текст ответа
-        res['response']['text'] = 'Привет! Купи слона!'
+        res['response']['text'] = f'Привет! Купи {animal}!'
         # Получим подсказки
         res['response']['buttons'] = get_suggests(user_id)
-        WAS = 0
         return
 
     # Сюда дойдем только, если пользователь не новый, и разговор с Алисой уже был начат
@@ -139,19 +87,15 @@ def handle_dialog(req, res):
         'я куплю'
     ]:
         # Пользователь согласился, прощаемся.
-        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-        WAS = 1
-        return redirect('/post')
+        res['response']['text'] = f'{animal} можно найти на Яндекс.Маркете!'
+        animal = 'Кролика'
+        return
 
     # Если нет, то убеждаем его купить слона!
-    # res['response']['text'] = 'Все говорят "%s", а ты купи слона!' % (
-    #     req['request']['original_utterance']
-    # )
-    res['response']['text'] = f'{WAS}!' % (
+    res['response']['text'] = f'Все говорят "%s", а ты купи {animal}!' % (
         req['request']['original_utterance']
     )
     res['response']['buttons'] = get_suggests(user_id)
-    WAS = 0
 
 
 # Функция возвращает две подсказки для ответа.
@@ -179,7 +123,7 @@ def get_suggests(user_id):
 
     return suggests
 
-# init
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
