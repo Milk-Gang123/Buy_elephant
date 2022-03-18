@@ -33,7 +33,6 @@ sessionStorage = {}
 def main():
     global WAS
     logging.info('Request: %r', request.json)
-    WAS += 1
     # Начинаем формировать ответ, согласно документации
     # мы собираем словарь, который потом при помощи библиотеки json преобразуем в JSON и отдадим Алисе
     response = {
@@ -123,6 +122,7 @@ def handle_dialog(req, res):
         res['response']['text'] = 'Привет! Купи слона!'
         # Получим подсказки
         res['response']['buttons'] = get_suggests(user_id)
+        WAS = 0
         return
 
     # Сюда дойдем только, если пользователь не новый, и разговор с Алисой уже был начат
@@ -140,6 +140,7 @@ def handle_dialog(req, res):
     ]:
         # Пользователь согласился, прощаемся.
         res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
+        WAS = 1
         return redirect('/post')
 
     # Если нет, то убеждаем его купить слона!
@@ -147,6 +148,7 @@ def handle_dialog(req, res):
         req['request']['original_utterance']
     )
     res['response']['buttons'] = get_suggests(user_id)
+    WAS = 0
 
 
 # Функция возвращает две подсказки для ответа.
