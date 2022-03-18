@@ -14,7 +14,7 @@ import json
 from werkzeug.utils import redirect
 
 app = Flask(__name__)
-WAS = 0
+WAS = -1
 # Устанавливаем уровень логирования
 logging.basicConfig(level=logging.INFO)
 
@@ -33,7 +33,7 @@ sessionStorage = {}
 def main():
     global WAS
     logging.info('Request: %r', request.json)
-
+    WAS += 1
     # Начинаем формировать ответ, согласно документации
     # мы собираем словарь, который потом при помощи библиотеки json преобразуем в JSON и отдадим Алисе
     response = {
@@ -58,7 +58,6 @@ def main():
 
 
 def handle_dialog_rabbit(req, res):
-    global WAS
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -141,7 +140,6 @@ def handle_dialog(req, res):
     ]:
         # Пользователь согласился, прощаемся.
         res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-        WAS = 1
         return redirect('/post')
 
     # Если нет, то убеждаем его купить слона!
