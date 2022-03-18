@@ -87,7 +87,7 @@ def handle_dialog(req, res):
         'я куплю'
     ]:
         # Пользователь согласился, прощаемся.
-        if animal == 'слона':
+        if animal == 'Слона':
             res['response']['text'] = f'{animal} можно найти на Яндекс.Маркете\nНо купи еще и Кролика!'
             animal = 'Кролика'
         else:
