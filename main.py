@@ -78,7 +78,7 @@ def handle_dialog_rabbit(req, res):
         # Получим подсказки
         res['response']['buttons'] = get_suggests(user_id)
         return
-
+    # a
     # Сюда дойдем только, если пользователь не новый, и разговор с Алисой уже был начат
     # Обрабатываем ответ пользователя.
     # В req['request']['original_utterance'] лежит весь текст, что нам прислал пользователь
