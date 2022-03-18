@@ -51,6 +51,52 @@ def main():
     return json.dumps(response)
 
 
+def handle_dialog_rabbit(req, res):
+    user_id = req['session']['user_id']
+
+    if req['session']['new']:
+        # Это новый пользователь.
+        # Инициализируем сессию и поприветствуем его.
+        # Запишем подсказки, которые мы ему покажем в первый раз
+
+        sessionStorage[user_id] = {
+            'suggests': [
+                "Не хочу.",
+                "Не буду.",
+                "Отстань!",
+            ]
+        }
+        # Заполняем текст ответа
+        res['response']['text'] = 'Привет! Купи Кролика!'
+        # Получим подсказки
+        res['response']['buttons'] = get_suggests(user_id)
+        return
+
+    # Сюда дойдем только, если пользователь не новый, и разговор с Алисой уже был начат
+    # Обрабатываем ответ пользователя.
+    # В req['request']['original_utterance'] лежит весь текст, что нам прислал пользователь
+    # Если он написал 'ладно', 'куплю', 'покупаю', 'хорошо', то мы считаем, что пользователь не согласился.
+    # Подумайте, все ли в этом фрагменте написано "красиво"?\
+    if req['request']['original_utterance'].lower() in [
+        'ладно',
+        'куплю',
+        'покупаю',
+        'хорошо',
+        'я покупаю',
+        'я куплю'
+    ]:
+        # Пользователь согласился, прощаемся.
+        res['response']['text'] = 'Кролика можно найти на Яндекс.Маркете!'
+        res['response']['end_session'] = True
+        return
+
+    # Если нет, то убеждаем его купить слона!
+    res['response']['text'] = 'Все говорят "%s", а ты купи кролика!' % (
+        req['request']['original_utterance']
+    )
+    res['response']['buttons'] = get_suggests(user_id)
+
+
 def handle_dialog(req, res):
     user_id = req['session']['user_id']
 
@@ -88,7 +134,7 @@ def handle_dialog(req, res):
         # Пользователь согласился, прощаемся.
         res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True
-        return
+        return handle_dialog_rabbit(req, res)
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = 'Все говорят "%s", а ты купи слона!' % (
