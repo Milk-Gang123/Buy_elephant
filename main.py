@@ -142,6 +142,7 @@ def handle_dialog(req, res):
         # Пользователь согласился, прощаемся.
         res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True
+        res['response']['end_session'] = False
         WAS = 1
         return redirect('/post')
 
