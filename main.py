@@ -144,7 +144,10 @@ def handle_dialog(req, res):
         return redirect('/post')
 
     # Если нет, то убеждаем его купить слона!
-    res['response']['text'] = 'Все говорят "%s", а ты купи слона!' % (
+    # res['response']['text'] = 'Все говорят "%s", а ты купи слона!' % (
+    #     req['request']['original_utterance']
+    # )
+    res['response']['text'] = f'{WAS}!' % (
         req['request']['original_utterance']
     )
     res['response']['buttons'] = get_suggests(user_id)
