@@ -29,6 +29,7 @@ sessionStorage = {}
 # Функция получает тело запроса и возвращает ответ.
 # Внутри функции доступен request.json - это JSON, который отправила нам Алиса в запросе POST
 def main():
+    global animal
     logging.info('Request: %r', request.json)
 
     # Начинаем формировать ответ, согласно документации
