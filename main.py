@@ -47,7 +47,7 @@ def main():
     animal = 'Слона'
     logging.info('Response: %r', request.json)
 
-    # Преобразовываем в JSON и возвращаем
+    # Преобразовываем в JSON и возвращаем ы
     return json.dumps(response)
 
 
