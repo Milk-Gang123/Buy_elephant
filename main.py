@@ -99,6 +99,7 @@ def handle_dialog(req, res):
             }
         else:
             res['response']['text'] = f'{animal} можно найти на Яндекс.Маркете!'
+            res['response']['end_session'] = True
         return
 
     # Если нет, то убеждаем его купить слона!
