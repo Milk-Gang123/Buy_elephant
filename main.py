@@ -90,6 +90,13 @@ def handle_dialog(req, res):
         if animal == 'Слона':
             res['response']['text'] = f'{animal} можно найти на Яндекс.Маркете\nНо купи еще и Кролика!'
             animal = 'Кролика'
+            sessionStorage[user_id] = {
+                'suggests': [
+                    "Не хочу.",
+                    "Не буду.",
+                    "Отстань!",
+                ]
+            }
         else:
             res['response']['text'] = f'{animal} можно найти на Яндекс.Маркете!'
         return
