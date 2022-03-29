@@ -29,7 +29,6 @@ sessionStorage = {}
 # Функция получает тело запроса и возвращает ответ.
 # Внутри функции доступен request.json - это JSON, который отправила нам Алиса в запросе POST
 def main():
-    global animal
     logging.info('Request: %r', request.json)
 
     # Начинаем формировать ответ, согласно документации
@@ -45,7 +44,7 @@ def main():
     # Отправляем request.json и response в функцию handle_dialog. Она сформирует оставшиеся поля JSON, которые отвечают
     # непосредственно за ведение диалога
     handle_dialog(request.json, response)
-    animal = 'Слона'
+
     logging.info('Response: %r', request.json)
 
     # Преобразовываем в JSON и возвращаем ы
@@ -60,8 +59,7 @@ def handle_dialog(req, res):
         # Это новый пользователь.
         # Инициализируем сессию и поприветствуем его.
         # Запишем подсказки, которые мы ему покажем в первый раз
-        # №пщпщпщпщпщ
-
+        animal = 'Слона'
         sessionStorage[user_id] = {
             'suggests': [
                 "Не хочу.",
